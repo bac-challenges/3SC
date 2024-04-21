@@ -20,14 +20,13 @@ struct ListView: View {
             List(searchResults) { item in
                 NavigationLink {
                     ListRowDetail(item: item)
-                        .navigationTitle(item.name)
                 } label: {
                     ListRow(item: item)
                 }
             }
             .navigationTitle("Pokemons")
-            .navigationBarTitleDisplayMode(.automatic)
         }
+        .accentColor(.black)
         .searchable(text: $searchText)
     }
     
@@ -41,17 +40,13 @@ struct ListView: View {
 }
 
 private struct ListRow: View {
-    
-    @State
+
     var item: Pokemon
     
     var body: some View {
         HStack {
-
-            PokemonImage(imageURI: item.image, size: 50)
-            
-            Text(item.name)
-                .font(.custom("Helvetica", size: 24, relativeTo: .title2))
+            ImageView(imageURI: item.image, size: 50)
+            TextView(text: item.name)
         }
     }
 }
@@ -61,25 +56,37 @@ private struct ListRowDetail: View {
     let item: Pokemon
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
 
-            PokemonImage(imageURI: item.image, size: 250)
+            ImageView(imageURI: item.image, size: 250)
             
-            HStack() {
-                Text("Stats:")
-                    .font(.custom("Helvetica", size: 24, relativeTo: .title3))
-                Spacer()
-                Text("65")
-                    .font(.custom("Helvetica", size: 24, relativeTo: .title3))
+            Text(item.name)
+                .font(.custom("Helvetica", 
+                              size: 36,
+                              relativeTo: .headline))
+            
+            List(item.stats) { item in
+                StatView(item: item)
             }
-            .padding(20)
-            
+        }
+        .background(Color(UIColor.systemGroupedBackground))
+    }
+}
+
+private struct StatView: View {
+    
+    let item: Stat
+    
+    var body: some View {
+        HStack() {
+            TextView(text: "\(item.name): \(item.value)")
             Spacer()
+            TextView(text: "E: \(item.effort)")
         }
     }
 }
 
-private struct PokemonImage: View {
+private struct ImageView: View {
 
     var imageURI: String
     let size: CGFloat
@@ -93,6 +100,18 @@ private struct PokemonImage: View {
             ProgressView()
         }
         .frame(width: size, height: size)
+    }
+}
+
+struct TextView: View {
+    
+    let text: String
+    
+    var body: some View {
+        Text(text)
+            .font(.custom("Helvetica",
+                          size: 24,
+                          relativeTo: .title2))
     }
 }
 

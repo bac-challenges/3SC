@@ -7,15 +7,19 @@
 
 import Foundation
 
-struct Stat: Codable {
+struct Stat: Codable, Identifiable {
+    var id = UUID()
     let name: String
     let value: Int
+    let effort: Int
 }
 
 #if DEBUG
 extension Stat {
     static let mockItems: [Stat]  = Array(count: 5) { index in
-        Stat(name: "Mock Stat Item \(index)", value: Int.random(in: 1..<100))
+        Stat(name: "Stat \(index)", 
+             value: Int.random(in: 1..<100),
+             effort: Int.random(in: 1..<10))
     }
 }
 #endif
