@@ -29,7 +29,7 @@ struct PokemonList: View {
     var body: some View {
         
         NavigationSplitView {
-            List(searchResults) { item in
+            List(searchResults, id:\.self) { item in
                 NavigationLink {
                     PokemonDetail(item: item)
                 } label: {
@@ -43,9 +43,12 @@ struct PokemonList: View {
             Text("Please select a Pokemon")
         }
         .navigationSplitViewStyle(.balanced)
-        .accentColor(.black)
         .task {
-            items = Pokemon.mockItems
+            do {
+                items = try await Pokemon.all
+            } catch {
+                print(error)
+            }
         }
     }
     
@@ -53,7 +56,7 @@ struct PokemonList: View {
         if searchText.isEmpty {
             return items
         } else {
-            return items.filter { $0.name.contains(searchText) }
+            return items.filter { $0.name.contains(searchText.lowercased()) }
         }
     }
 }
@@ -65,7 +68,7 @@ private struct PokemonRow: View {
     
     var body: some View {
         HStack {
-            ImageView(imageURI: item.image, size: 50)
+            ImageView(imageURI: item.sprite, size: 50)
             TextView(text: item.name)
         }
     }
@@ -76,28 +79,37 @@ private struct PokemonDetail: View {
     
     let item: Pokemon
     
+    @State private var items: [Pokemon.Stat] = []
+    
     var body: some View {
         VStack(spacing: 0) {
             
-            ImageView(imageURI: item.image, size: 250)
+            ImageView(imageURI: item.sprite, size: 250)
             
             Text(item.name)
                 .font(.custom("Helvetica",
                               size: 36,
                               relativeTo: .headline))
             
-            List(item.stats) { item in
+            List(items, id:\.self) { item in
                 StatView(item: item)
             }
         }
         .background(Color(UIColor.systemGroupedBackground))
+        .task {
+            do {
+                items = try await Pokemon.stats(name: item.name)
+            } catch {
+                print(error)
+            }
+        }
     }
 }
 
 // View/StatView.swift
 private struct StatView: View {
     
-    let item: Stat
+    let item: Pokemon.Stat
     
     var body: some View {
         HStack() {
@@ -111,7 +123,7 @@ private struct StatView: View {
 // View/ImageView.swift
 private struct ImageView: View {
     
-    var imageURI: String
+    let imageURI: String
     let size: CGFloat
     
     var body: some View {
@@ -144,66 +156,59 @@ struct TextView: View {
  * Model
  */
 
+// Model/Wrapper.swift
+struct Wrapper: Decodable {
+    let results: [Pokemon]
+}
+
 // Model/Pokemon.swift
-struct Pokemon: Codable, Identifiable {
-    let id: Int
+struct Pokemon: Decodable, Hashable {
+    
+    struct Stat: Codable, Hashable {
+        let name: String
+        let value: Int
+        let effort: Int
+    }
+    
     let name: String
-    let stats: [Stat]
-    var image: String {
-        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/\(id).png"
+    let url: String?
+    let stats: [Stat]?
+}
+
+// Sprite
+extension Pokemon {
+    var sprite: String {
+        var id = url?.replacingOccurrences(of: "https://pokeapi.co/api/v2/pokemon/", with: "")
+        id = id?.replacingOccurrences(of: "/", with: "")
+        return "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/\(id ?? "0").png"
     }
 }
 
-// Model/Stat.swift
-struct Stat: Codable, Identifiable {
-    var id = UUID()
-    let name: String
-    let value: Int
-    let effort: Int
-}
-
-
-/**
- * Networking
- */
-
-// Service/Service.swift
-struct Service {
-    func get() async throws -> [String] {
-        let url = URL(string: "https://pokeapi.co/api/v2/pokemon/")!
+// Networking
+extension Pokemon {
+    static var all: [Pokemon] {
+        get async throws {
+            let url = URL(string: "https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0")!
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let wrapper = try JSONDecoder().decode(Wrapper.self, from: data)
+            return wrapper.results
+        }
+    }
+    
+    static func stats(name: String) async throws -> [Stat] {
+        let url = URL(string: "https://pokeapi.co/api/v2/pokemon/\(name)/")!
         let (data, _) = try await URLSession.shared.data(from: url)
-        return try JSONDecoder().decode([String].self, from: data)
+        return try JSONDecoder().decode(Pokemon.self, from: data).stats ?? []
     }
 }
 
 
 /**
- * Utils
+ * Preview
  */
 
 #if DEBUG
 #Preview {
     PokemonList()
 }
-
-extension Pokemon {
-    static let mockItems: [Pokemon] = Array(count: 15) { index in
-        Pokemon(id: index, name: "Pokemon \(index)", stats: Stat.mockItems)
-    }
-}
-
-extension Stat {
-    static let mockItems: [Stat]  = Array(count: 5) { index in
-        Stat(name: "Stat \(index)",
-             value: Int.random(in: 1..<100),
-             effort: Int.random(in: 1..<10))
-    }
-}
-
-extension Array {
-    public init(count: Int, createElement: (Int) -> Element) {
-        self = (0 ..< count).map { index in createElement(index) }
-    }
-}
-
 #endif
