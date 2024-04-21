@@ -1,10 +1,12 @@
 //
-//  Pokemon
-//
 //  Created by emile on 23/04/2024.
 //
 
 import SwiftUI
+
+/**
+ * App
+ */
 
 @main
 struct PokemonApp: App {
@@ -14,7 +16,6 @@ struct PokemonApp: App {
         }
     }
 }
-
 
 /**
  * View
@@ -69,7 +70,7 @@ private struct PokemonRow: View {
     var body: some View {
         HStack {
             ImageView(imageURI: item.sprite, size: 50)
-            TextView(text: item.name)
+            TextView(text: item.name.capitalized)
         }
     }
 }
@@ -86,7 +87,7 @@ private struct PokemonDetail: View {
             
             ImageView(imageURI: item.sprite, size: 250)
             
-            Text(item.name)
+            Text(item.name.capitalized)
                 .font(.custom("Helvetica",
                               size: 36,
                               relativeTo: .headline))
@@ -151,7 +152,6 @@ struct TextView: View {
     }
 }
 
-
 /**
  * Model
  */
@@ -201,7 +201,6 @@ extension Pokemon {
         return try JSONDecoder().decode(Pokemon.self, from: data).stats ?? []
     }
 }
-
 
 /**
  * Preview
