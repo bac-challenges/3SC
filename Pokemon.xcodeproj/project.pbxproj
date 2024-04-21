@@ -20,7 +20,6 @@
 		60BED39D2BD3B182000335CD /* ListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BED39C2BD3B182000335CD /* ListView.swift */; };
 		60BED3A12BD3B2C1000335CD /* Service.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BED3A02BD3B2C1000335CD /* Service.swift */; };
 		60BED3A32BD3B2D0000335CD /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BED3A22BD3B2D0000335CD /* Store.swift */; };
-		60BED3A52BD3B37F000335CD /* ItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BED3A42BD3B37F000335CD /* ItemView.swift */; };
 		60BED3A82BD3DBE0000335CD /* Array+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60BED3A72BD3DBE0000335CD /* Array+Utils.swift */; };
 /* End PBXBuildFile section */
 
@@ -58,7 +57,6 @@
 		60BED39C2BD3B182000335CD /* ListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListView.swift; sourceTree = "<group>"; };
 		60BED3A02BD3B2C1000335CD /* Service.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Service.swift; sourceTree = "<group>"; };
 		60BED3A22BD3B2D0000335CD /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
-		60BED3A42BD3B37F000335CD /* ItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemView.swift; sourceTree = "<group>"; };
 		60BED3A72BD3DBE0000335CD /* Array+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Utils.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -162,7 +160,6 @@
 			isa = PBXGroup;
 			children = (
 				60BED39C2BD3B182000335CD /* ListView.swift */,
-				60BED3A42BD3B37F000335CD /* ItemView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -335,7 +332,6 @@
 				60BED3662BD3AA17000335CD /* PokemonApp.swift in Sources */,
 				60BED3A12BD3B2C1000335CD /* Service.swift in Sources */,
 				60BED3A32BD3B2D0000335CD /* Store.swift in Sources */,
-				60BED3A52BD3B37F000335CD /* ItemView.swift in Sources */,
 				60BED39D2BD3B182000335CD /* ListView.swift in Sources */,
 				60BED3972BD3AE7D000335CD /* Pokemon.swift in Sources */,
 				60BED3A82BD3DBE0000335CD /* Array+Utils.swift in Sources */,

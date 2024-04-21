@@ -9,41 +9,93 @@ import SwiftUI
 
 struct ListView: View {
     
-    @Bindable
+    @Bindable 
     var store: Store
     
+    @State 
+    private var searchText = ""
+    
     var body: some View {
-        NavigationView {
-            List {
-                ForEach(store.items) { item in
-                    ListViewRow(item: item)
+        NavigationStack {
+            List(searchResults) { item in
+                NavigationLink {
+                    ListRowDetail(item: item)
+                        .navigationTitle(item.name)
+                } label: {
+                    ListRow(item: item)
                 }
-                .navigationTitle("Pokemons")
-                .navigationBarTitleDisplayMode(.large)
             }
+            .navigationTitle("Pokemons")
+            .navigationBarTitleDisplayMode(.automatic)
+        }
+        .searchable(text: $searchText)
+    }
+    
+    var searchResults: [Pokemon] {
+        if searchText.isEmpty {
+            return store.items
+        } else {
+            return store.items.filter { $0.name.contains(searchText) }
         }
     }
 }
 
-private struct ListViewRow: View {
+private struct ListRow: View {
+    
+    @State
+    var item: Pokemon
+    
+    var body: some View {
+        HStack {
+
+            PokemonImage(imageURI: item.image, size: 50)
+            
+            Text(item.name)
+                .font(.custom("Helvetica", size: 24, relativeTo: .title2))
+        }
+    }
+}
+
+private struct ListRowDetail: View {
     
     let item: Pokemon
     
     var body: some View {
-        HStack {
-            AsyncImage(url: URL(string: item.image)) { image in
-                image
-                    .resizable()
-                    .scaledToFill()
-            } placeholder: {
-                Color.red
-            }
-            .frame(width: 50, height: 50)
+        VStack {
+
+            PokemonImage(imageURI: item.image, size: 250)
             
-            Text(item.name).font(.title2)
+            HStack() {
+                Text("Stats:")
+                    .font(.custom("Helvetica", size: 24, relativeTo: .title3))
+                Spacer()
+                Text("65")
+                    .font(.custom("Helvetica", size: 24, relativeTo: .title3))
+            }
+            .padding(20)
+            
+            Spacer()
         }
     }
 }
+
+private struct PokemonImage: View {
+
+    var imageURI: String
+    let size: CGFloat
+    
+    var body: some View {
+        AsyncImage(url: URL(string: imageURI)) { image in
+            image
+                .resizable()
+                .scaledToFill()
+        } placeholder: {
+            ProgressView()
+        }
+        .frame(width: size, height: size)
+    }
+}
+
 
 #if DEBUG
 #Preview {
