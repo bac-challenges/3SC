@@ -11,6 +11,10 @@ struct Pokemon: Codable, Identifiable {
     let id: Int
     let name: String
     let stats: [Stat]
+    
+    var image: String {
+        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/\(id).png"
+    }
 }
 
 #if DEBUG

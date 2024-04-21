@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import SwiftUI
 
-struct Store {
-    
+@Observable
+class Store {
+    var items: [Pokemon] = Pokemon.mockItems
 }

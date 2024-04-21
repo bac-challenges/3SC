@@ -9,16 +9,14 @@ import SwiftUI
 
 struct ListView: View {
     
-    private let baseImage = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/####.png"
+    @Bindable
+    var store: Store
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(Pokemon.mockItems) { item in
-                    ListViewRow(
-                        imagePath: baseImage.replacingOccurrences(of: "####", with: String(item.id)),
-                        itemTitle: item.name
-                    )
+                ForEach(store.items) { item in
+                    ListViewRow(item: item)
                 }
                 .navigationTitle("Pokemons")
                 .navigationBarTitleDisplayMode(.large)
@@ -29,12 +27,11 @@ struct ListView: View {
 
 private struct ListViewRow: View {
     
-    let imagePath: String
-    let itemTitle: String
+    let item: Pokemon
     
     var body: some View {
         HStack {
-            AsyncImage(url: URL(string: imagePath)) { image in
+            AsyncImage(url: URL(string: item.image)) { image in
                 image
                     .resizable()
                     .scaledToFill()
@@ -42,13 +39,14 @@ private struct ListViewRow: View {
                 Color.red
             }
             .frame(width: 50, height: 50)
-            Text(itemTitle).font(.title2)
+            
+            Text(item.name).font(.title2)
         }
     }
 }
 
 #if DEBUG
 #Preview {
-    ListView()
+    ListView(store: Store())
 }
 #endif
