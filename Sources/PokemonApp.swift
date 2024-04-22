@@ -80,7 +80,7 @@ private struct PokemonDetail: View {
     
     let item: Pokemon
     
-    @State private var items: [Pokemon.Stat] = []
+    @State private var items: [Stat] = []
     
     var body: some View {
         VStack(spacing: 0) {
@@ -99,7 +99,7 @@ private struct PokemonDetail: View {
         .background(Color(UIColor.systemGroupedBackground))
         .task {
             do {
-                items = try await Pokemon.stats(name: item.name)
+                items = try await Pokemon.stats(for: item.name)
             } catch {
                 print(error)
             }
@@ -110,7 +110,7 @@ private struct PokemonDetail: View {
 // View/StatView.swift
 private struct StatView: View {
     
-    let item: Pokemon.Stat
+    let item: Stat
     
     var body: some View {
         HStack() {
@@ -163,13 +163,6 @@ struct Wrapper: Decodable {
 
 // Model/Pokemon.swift
 struct Pokemon: Decodable, Hashable {
-    
-    struct Stat: Codable, Hashable {
-        let name: String
-        let value: Int
-        let effort: Int
-    }
-    
     let name: String
     let url: String?
     let stats: [Stat]?
@@ -195,10 +188,35 @@ extension Pokemon {
         }
     }
     
-    static func stats(name: String) async throws -> [Stat] {
+    static func stats(for name: String) async throws -> [Stat] {
         let url = URL(string: "https://pokeapi.co/api/v2/pokemon/\(name)/")!
         let (data, _) = try await URLSession.shared.data(from: url)
         return try JSONDecoder().decode(Pokemon.self, from: data).stats ?? []
+    }
+}
+
+// Model/Stat.swift
+struct Stat: Codable, Hashable {
+    let name: String
+    let value: Int
+    let effort: Int
+    
+    enum OuterKeys: String, CodingKey {
+        case value = "base_stat"
+        case effort, stat
+    }
+    
+    enum StatKeys: String, CodingKey {
+        case name
+    }
+    
+    init(from decoder: Decoder) throws {
+        let outerContainer = try decoder.container(keyedBy: OuterKeys.self)
+        let statContainer = try outerContainer.nestedContainer(keyedBy: StatKeys.self, forKey: .stat)
+        
+        self.name = try statContainer.decode(String.self, forKey: .name)
+        self.value = try outerContainer.decode(Int.self, forKey: .value)
+        self.effort = try outerContainer.decode(Int.self, forKey: .effort)
     }
 }
 
