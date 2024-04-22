@@ -83,20 +83,25 @@ private struct PokemonDetail: View {
     @State private var items: [Stat] = []
     
     var body: some View {
-        VStack(spacing: 0) {
+        List {
+            VStack {
+                ImageView(imageURI: item.sprite, size: 250)
+                Text(item.name.capitalized)
+                    .font(.custom("Helvetica",
+                                  size: 36,
+                                  relativeTo: .headline))
+                HStack {
+                    Spacer()
+                }
+            }
+            .listRowBackground(Color.clear)
             
-            ImageView(imageURI: item.sprite, size: 250)
-            
-            Text(item.name.capitalized)
-                .font(.custom("Helvetica",
-                              size: 36,
-                              relativeTo: .headline))
-            
-            List(items, id:\.self) { item in
-                StatView(item: item)
+            Section {
+                ForEach(items, id:\.self) { item in
+                    StatView(item: item)
+                }
             }
         }
-        .background(Color(UIColor.systemGroupedBackground))
         .task {
             do {
                 items = try await Pokemon.stats(for: item.name)
@@ -113,7 +118,7 @@ private struct StatView: View {
     let item: Stat
     
     var body: some View {
-        HStack() {
+        HStack {
             TextView(text: "\(item.name): \(item.value)")
             Spacer()
             TextView(text: "E: \(item.effort)")
